@@ -44,4 +44,9 @@
 
 참고 레퍼런스
 
+
+### NoSQL의 종류별 특징
+
+
+
 [LINE 알림 센터의 메인 스토리지를 Redis에서 MongoDB로 전환하기](https://engineering.linecorp.com/ko/blog/LINE-integrated-notification-center-from-redis-to-mongodb)
