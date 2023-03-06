@@ -42,11 +42,8 @@
 - MongoDB 5.0 부터는 Lock-Free Read Operation을 지원한다.
 - Redis와 비교했을때는 디스크 I/O가 발생하기 때문에 레디스보다 2배 이상 느린 속도를 보여준다.
 
+
+
 참고 레퍼런스
-
-
-### NoSQL의 종류별 특징
-
-
 
 [LINE 알림 센터의 메인 스토리지를 Redis에서 MongoDB로 전환하기](https://engineering.linecorp.com/ko/blog/LINE-integrated-notification-center-from-redis-to-mongodb)
