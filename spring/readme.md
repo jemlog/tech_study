@@ -210,7 +210,7 @@ repository는 엔티티 객체를 보관하고 관리하는 저장소, dao는 �
 
 Data Transfer Object의 약자로 계층 간 데이터 교환 역할을 한다.
 
-![스크린샷 2023-03-01 오후 2.37.57.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-01%20%EC%98%A4%ED%9B%84%202.37.57.png)
+![스크린샷 2023-03-07 오전 12.50.53.png](/image/dto.png)
 
 DTO를 사용하는 이유
 
