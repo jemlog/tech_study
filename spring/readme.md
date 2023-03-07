@@ -1,24 +1,91 @@
 ## 스프링
 
-### POJO
-
-POJO는 말 그대로 해석을 하면 오래된 방식의 간단한 자바 오브젝트라는 말로서 Java EE 등의 중량 프레임워크들을 사용하게 되면서 해당 프레임워크에 종속된 "무거운" 객체를 만들게 된 것에 반발해서 사용되게 된 용어이다.
-
-**POJO는 순수한 자바 객체로만 프로그램을 짜는걸 말하는가?**
-
--> POJO는 특정 기술에 의존하지 않음으로써 객체 지향의 장점인 다형성을 살리는 방식을 말한다.
-
-POJO를 실천하지 못한 경우
-- ORM을 사용할때 Hibernate에 직접적으로 의존하는 방법
-
-POJO를 실천한 경우
-- ORM 표준 인터페이스인 JPA를 사용하는 경우
-
-> 인터페이스를 사용하게 되면 구현 기술의 변화에 영향을 받지 않기 때문에 확장성을 얻을 수 있다.
 
 
 
-### IOC (Inversion of Control)
+### 스프링 프레임워크
+
+자바 플랫폼을 위한 오픈소스 애플리케이션 프레임워크로서 엔터프라이즈급 애플리케이션을 개발하기 위한 모든 기능을 종합적으로 제공하는 경량화된 솔루션이다.
+
+### Spring, SpringBoot 차이
+
+**빌드 후 배포 방식**
+- Spring의 경우 WAR 파일로 빌드 후 직접 WAS인 톰캣에 배포 시켜야 한다.
+- SpringBoot의 경우 Executable JAR로 애플리케이션 코드와 내장 톰캣을 함께 빌드함으로 Main 메서드만 실행하면 WAS 위에서 동작한다.
+
+**라이브러리 관리**
+
+- Spring의 경우 프로젝트에 필요한 라이브러리를 직접 다 세팅해야 하고, 라이브러리와 스프링 간 버전 호환성을 하나하나 다 고려해줘야 한다.
+- SpringBoot의 경우, Starter 팩을 사용해서 프로젝트에 필요한 라이브러리들을 자동으로 세팅해준다. 또한 스프링과 호환되는 라이브러리 버전을 알아서 세팅해준다.
+
+**스프링 빈 등록**
+
+- Spring의 경우 라이브러리를 다운 받더라도 프로젝트에 필요한 기능들은 하나하나 스프링 빈으로 스프링 컨테이너에 등록해줘야 한다. 
+- SpringBoot의 경우, 자동 구성(AutoConfiguration)을 사용해서 조건에 따라 미리 스프링 빈 등록 코드를 라이브러리가 제공해줄 수 있다. 또한 스프링부트 자체적으로도 프로젝트에 자주 사용되는 구성들을 AutoConfigure starter를 통해 제공해준다.
+
+
+![스크린샷 2023-03-07 오전 12.50.53.png](/image/springboot_1.png)
+
+위 사진에 있는 autoConfigure 패키지에 AutoConfiguration 관련 코드가 모두 들어있다.
+
+![스크린샷 2023-03-07 오전 12.50.53.png](/image/springboot_2.png)
+
+다음 사진에 메타 에노테이션으로 붙어있는 @EnableAutoConfiguration이 자동 구성(AutoConfiguration)을 가능하게 해준다.
+
+### Bean
+
+스프링 컨테이너에 등록된 객체를 의미한다.
+
+### Container
+
+@Bean 애노테이션을 사용해서 스프링 컨테이너에 빈을 등록할 수 있다.
+
+> @Configuration의 동작 방식에 대해 자세히 알아볼 필요가 있다.
+
+흔히, 스프링 빈을 등록할때 이런 식으로 등록한다.
+
+```java
+@Configuration
+public class JavaConfig {
+
+    @Bean
+    public JavaBean javaBean()
+    {
+        return new JavaBean();
+    }
+}
+```
+이때 @Configuration이 없이 @Bean만 있어도 스프링 컨테이너에 스프링 빈으로 등록된다.
+
+@Configuration를 사용하게 되면 빈 등록 메서드에서 생성되는 객체를 싱글톤으로 보장해준다.
+
+```java
+@Configuration
+public class JavaConfig {
+
+    @Bean
+    public JavaBean javaBean() {
+        return new JavaBean();
+    }
+  
+    @Bean
+    public JavaBean2 javaBean2() {
+        
+        // 이 과정에서 javaBean() 메서드를 통해 새로운 객체가 생성되지 않도록 해준다
+        return new JavaBean2(javaBean());
+    }
+}
+```
+이 과정은 스프링이 CGLIB를 통해 프록시를 생성하고, 프록시 내부에 싱글톤을 보장해주는 코드를 추가함으로써 진행된다.
+
+> 만약 위의 케이스처럼 빈 등록 메서드가 2번 이상 호출되는 경우가 없다면, 프록시 생성은 리소스 낭비다. 따라서 @Configuration(proxyBeanMethods = false) 라는 옵션값을 통해 프록시 생성을 막는다.
+
+
+
+
+### IOC(Inversion of Control)
+
+---
 
 프로그램의 제어 흐름을 직접 제어하는 것이 아니라 외부에서 관리하는 것을 제어의 역전(IoC)이라 한다. 우리가 흔히 사용하는 스프링 컨테이너가 대표적인 IOC 컨테이너라고 할 수 있다.
 
@@ -39,7 +106,7 @@ public class StockService() {
 }
 ```
 
-위의 코드에서는 StockService가 직접 StockRepository를 생성하고 사용했기때문에 제어권이 StockService에 있다. 
+위의 코드에서는 StockService가 직접 StockRepository를 생성하고 사용했기때문에 제어권이 StockService에 있다.
 
 ```java
 @Service
@@ -69,14 +136,68 @@ IOC의 장점
 
 > 스프링 컨테이너는 IOC와 DI 모두의 역할을 하기 때문에 IOC 컨테이너와 DI 컨테이너 둘다로 불릴 수 있다.
 
+### DL(Dependency Lookup) - 의존성 검색
+
+스프링 컨테이너에 등록되어 있는 스프링 빈을 직접 검색하는 방법을 의미한다.
+
+**스프링 컨테이너를 통해 직접 검색**
+```java
+public class Test{
+    
+    @Autowired
+    private ApplicationContext applicationContext;
+    
+    public void test(){
+        applicationContext.getBean(JavaBean.class);
+    }
+}
+```
+
+**ObjectProvider를 통해서 검색**
+```java
+public class Test{
+    
+    @Autowired
+    private ObjectProvider<JavaBean> objectProvider;
+
+    public int test() {
+        JavaBean javaBean = prototypeBeanProvider.getObject();
+    }
+}
+```
+
+**ObjectProvider 사용 이유**
+- applicationContext.getBean()을 사용하려면 스프링 컨테이너 자체를 주입 받아야 한다. 따라서 만약 테스트를 진행한다면 테스트가 매우 무거워질 수가 있다.
+- objectProvider.getObject()를 사용하면 직접 applicationContext를 주입 받을 필요 없이 필요한 빈을 검색할 수 있다.
+
+
+### POJO
+
+---
+
+POJO는 말 그대로 해석을 하면 오래된 방식의 간단한 자바 오브젝트라는 말로서 Java EE 등의 중량 프레임워크들을 사용하게 되면서 해당 프레임워크에 종속된 "무거운" 객체를 만들게 된 것에 반발해서 사용되게 된 용어이다.
+
+**POJO는 순수한 자바 객체로만 프로그램을 짜는걸 말하는가?**
+
+-> POJO는 특정 기술에 의존하지 않음으로써 객체 지향의 장점인 다형성을 살리는 방식을 말한다.
+
+POJO를 실천하지 못한 경우
+- ORM을 사용할때 Hibernate에 직접적으로 의존하는 방법
+
+POJO를 실천한 경우
+- ORM 표준 인터페이스인 JPA를 사용하는 경우
+
+> 인터페이스를 사용하게 되면 구현 기술의 변화에 영향을 받지 않기 때문에 확장성을 얻을 수 있다.
 
 ### DAO와 DTO
+
+---
 
 **DAO**
 
 Data Access Object의 약자로 DB의 데이터에 접근하기 위한 객체를 말한다.
 
-repository와 dao의 차이 
+repository와 dao의 차이
 
 repository는 엔티티 객체를 보관하고 관리하는 저장소, dao는 데이터에 접근하도록 db 접근 관련 로직을 모아둔 객체
 
@@ -93,7 +214,7 @@ Data Transfer Object의 약자로 계층 간 데이터 교환 역할을 한다.
 
 DTO를 사용하는 이유
 
-계층간의 의존성을 제거하기 위해서 사용한다. 
+계층간의 의존성을 제거하기 위해서 사용한다.
 ```java
 @RestController
 @RequiredArgumentContructor
@@ -113,10 +234,9 @@ public class StockController
 
 즉, 컨트롤러 계층이 레포지토리 계층의 변경사항에 의존적이게 되는 것이다. 서로 다른 계층의 변화에 의존적이지 않게 하려면 각 계층 전용 입력,출력 DTO를 만드는게 좋다.
 
+### MVC 패턴
 
-
-
-### MVC
+---
 
 https://velog.io/@seongwon97/MVC-%ED%8C%A8%ED%84%B4%EC%9D%B4%EB%9E%80 (MVC 참고)
 
@@ -130,14 +250,97 @@ controller
 - model과 view를 이어주는 역할을 한다.
 
 
------
+### MVC vs Webflux
 
-
+webflux의 근간 : 이벤트 루프
 
 ### Filter와 Interceptor
 
 - https://mangkyu.tistory.com/173 (필터와 인터셉터 차이)
 - https://mangkyu.tistory.com/221 (필터를 스프링 빈으로 등록 및 주입 가능한 이유)
+
+![스크린샷 2023-03-01 오후 2.37.57.png](/image/filter_1.png)
+
+**Filter**
+
+디스패처 서블릿에 요청이 전달되기 전/후에 url 패턴에 맞는 모든 요청에 대해 부가작업을 처리할 수 있는 기능을 제공한다. 스프링 컨테이너가 아닌 서블릿 컨테이너에서 관리한다.
+
+```java
+public interface Filter {
+
+    public default void init(FilterConfig filterConfig) throws ServletException {}
+
+    public void doFilter(ServletRequest request, ServletResponse response,
+            FilterChain chain) throws IOException, ServletException;
+
+    public default void destroy() {}
+}
+```
+- Filter의 경우 HttpRequest로 한정되지 않고 그보다 상위인 servletRequest를 받는다.
+- doFilter는 filterchain을 사용해서 연쇄적으로 filter를 사용할 수 있다.
+
+
+
+**Interceptor**
+
+스프링이 제공하는 기술이다. 디스패처 서블릿이 컨트롤러를 호출하기 전과 후에 요청과 응답을 참조하거나 가공할 수 있다
+```java
+public interface HandlerInterceptor {
+
+    default boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+        throws Exception {
+        
+        return true;
+    }
+
+    default void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+        @Nullable ModelAndView modelAndView) throws Exception {
+    }
+
+    default void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler,
+        @Nullable Exception ex) throws Exception {
+    }
+}
+```
+
+prehandle
+- 컨트롤러가 호출되기 전에 실행된다. 컨트롤러로 요청이 들어가기 전해 해야하는 전처리 과정이 포함된다.
+
+PostHandle
+- 컨트롤러 실행 후에 실행된다.컨트롤러 하위 계층에서 작업 진행하다가 중간 예외 발생하면 호출안됨
+
+afterCompletion
+- 모든 뷰까지 최종 결과를 생성한 후에 실행된다. 사용한 리소스 반환에 사용하기 좋은 중간에 예외 발생해도 반드시 호출된다
+
+**필터와 인터셉터 차이**
+
+필터의 사용처
+- 공통된 보안 인증/인가 작업
+- 모든 요청에 대한 로깅 및 감사
+- 이미지 데이터 압축 및 문자열 인코딩
+- spring과 분리되는 기능
+
+공통적인 보안 작업 (xss) 등을 진행하여, 스프링 컨테이너 내부까지 전달되지 않도록 하는게 좋다. 웹 어플리케이션 전반적으로 사용되는 기능 구현에 적합
+
+인터셉터의 사용처
+- 세부적인 보안 및 인증/인가 공통 작업
+- API 호출에 대한 로깅 감사
+
+
+### AOP
+
+### 스프링 MVC에서 많은 요청이 발생할 때 생기는 상황
+
+### Spring JDBC를 통한 데이터 접근
+
+### 톰캣 내부 구조
+
+### 톰캣 기본 사이즈, 최대 사이즈
+
+- Max Thread Size : 200
+- Min Thread Size : 10
+
+### N+1 문제
 
 ### 스프링 MVC에서 많은 요청이 발생할 때 생기는 상황 (다중 접속 처리)
 
@@ -147,7 +350,7 @@ controller
 
 
 
-스프링부트에 내장되어있는 **서블릿 컨테이너인 톰캣**에서 다중요청을 처리한다. 
+스프링부트에 내장되어있는 **서블릿 컨테이너인 톰캣**에서 다중요청을 처리한다.
 
 **톰캣과 쓰레드풀**
 
@@ -236,7 +439,7 @@ Flux와 Mono는 Reactor 라이브러리의 주요 객체이다.
 Flux와 Mono의 차이점 : 발행하는 데이터 개수
 
 - Mono는 0 ~ 1개의 데이터를 전달한다
-- 
+-
 
 
 ### Sync vs Async, Non-blocking vs Blocking
@@ -294,7 +497,7 @@ function boss () {
 boss();
 ```
 
-### Async 
+### Async
 
 동기 방식에서 상위 프로세스는 작업을 시킨 하위 프로세스의 작업 상황을 계속 신경쓰고 있어야 한다. 하위 프로세스의 작업이 끝나야 그 다음 상위 프로세스의 작업을 실행할 수 있다.
 
@@ -322,6 +525,3 @@ boss();
 ```
 
 비동기 방식이기 때문에 상위 프로세스는 하위 프로세스의 작업 완료 여부를 따로 신경쓰지 않는다. 또한 논블로킹 방식이기 때문에 상위 프로세스는 하위 프로세스에게 일을 맡기고 자신의 작업을 계속 수행할 수도 있다.
-
-
-
