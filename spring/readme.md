@@ -3,11 +3,11 @@
 
 
 
-### 스프링 프레임워크
+## 스프링 프레임워크
 
 자바 플랫폼을 위한 오픈소스 애플리케이션 프레임워크로서 엔터프라이즈급 애플리케이션을 개발하기 위한 모든 기능을 종합적으로 제공하는 경량화된 솔루션이다.
 
-### Spring, SpringBoot 차이
+## Spring, SpringBoot 차이
 
 **빌드 후 배포 방식**
 - Spring의 경우 WAR 파일로 빌드 후 직접 WAS인 톰캣에 배포 시켜야 한다.
@@ -32,11 +32,11 @@
 
 다음 사진에 메타 에노테이션으로 붙어있는 @EnableAutoConfiguration이 자동 구성(AutoConfiguration)을 가능하게 해준다.
 
-### Bean
+## Bean
 
 스프링 컨테이너에 등록된 객체를 의미한다.
 
-### Container
+## Container
 
 @Bean 애노테이션을 사용해서 스프링 컨테이너에 빈을 등록할 수 있다.
 
@@ -83,9 +83,9 @@ public class JavaConfig {
 
 
 
-### IOC(Inversion of Control)
+## IOC(Inversion of Control)
 
----
+
 
 프로그램의 제어 흐름을 직접 제어하는 것이 아니라 외부에서 관리하는 것을 제어의 역전(IoC)이라 한다. 우리가 흔히 사용하는 스프링 컨테이너가 대표적인 IOC 컨테이너라고 할 수 있다.
 
@@ -171,9 +171,9 @@ public class Test{
 - objectProvider.getObject()를 사용하면 직접 applicationContext를 주입 받을 필요 없이 필요한 빈을 검색할 수 있다.
 
 
-### POJO
+## POJO
 
----
+
 
 POJO는 말 그대로 해석을 하면 오래된 방식의 간단한 자바 오브젝트라는 말로서 Java EE 등의 중량 프레임워크들을 사용하게 되면서 해당 프레임워크에 종속된 "무거운" 객체를 만들게 된 것에 반발해서 사용되게 된 용어이다.
 
@@ -189,9 +189,9 @@ POJO를 실천한 경우
 
 > 인터페이스를 사용하게 되면 구현 기술의 변화에 영향을 받지 않기 때문에 확장성을 얻을 수 있다.
 
-### DAO와 DTO
+## DAO와 DTO
 
----
+
 
 **DAO**
 
@@ -234,9 +234,9 @@ public class StockController
 
 즉, 컨트롤러 계층이 레포지토리 계층의 변경사항에 의존적이게 되는 것이다. 서로 다른 계층의 변화에 의존적이지 않게 하려면 각 계층 전용 입력,출력 DTO를 만드는게 좋다.
 
-### MVC 패턴
+## MVC 패턴
 
----
+
 
 https://velog.io/@seongwon97/MVC-%ED%8C%A8%ED%84%B4%EC%9D%B4%EB%9E%80 (MVC 참고)
 
@@ -250,11 +250,11 @@ controller
 - model과 view를 이어주는 역할을 한다.
 
 
-### MVC vs Webflux
+## MVC vs Webflux
 
 webflux의 근간 : 이벤트 루프
 
-### Filter와 Interceptor
+## Filter와 Interceptor
 
 - https://mangkyu.tistory.com/173 (필터와 인터셉터 차이)
 - https://mangkyu.tistory.com/221 (필터를 스프링 빈으로 등록 및 주입 가능한 이유)
@@ -327,9 +327,9 @@ afterCompletion
 - API 호출에 대한 로깅 감사
 
 
-### AOP
+## AOP
 
-### 스프링 MVC에서 많은 요청이 발생할 때 생기는 상황
+## 스프링 MVC에서 많은 요청이 발생할 때 생기는 상황
 
 스프링부트에 내장되어있는 **서블릿 컨테이너인 톰캣**에서 다중요청을 처리한다.
 
@@ -359,9 +359,9 @@ afterCompletion
 - Max-Thread : 200
 - Idle-Thread : 10
 
-### Spring JDBC를 통한 데이터 접근
+## Spring JDBC를 통한 데이터 접근
 
-### 톰캣 내부 구조
+## 톰캣 내부 구조
 - 자바 기반의 WAS로 서블릿 컨테이너라고도 불린다. 톰캣 내부에서 스프링 애플리케이션이 작동한다. 
 - 톰캣에서 소켓을 통해 커넥션을 획득한 뒤, 요청을 디스패처 서블릿으로 전달한다.
 
@@ -380,11 +380,11 @@ Acceptor는 Poller라는 특별한 쓰레드로 위의 소켓(채널이라고도
 이때 들고 있는 소켓에 데이터가 들어왔다는 이벤트가 발생하면 그때 쓰레드 풀의 워커 쓰레드로 요청을 할당해준다. 해당 쓰레드는 디스패처 서블릿으로 요청을 넘기고, 응답을 반환받은 뒤 쓰레드 풀로 돌아간다.
 
 
-### 톰캣 기본 사이즈, 최대 사이즈
+## 톰캣 기본 사이즈, 최대 사이즈
 
 - Max Thread Size : 200
 - Min Thread Size : 10
 
-### N+1 문제
+## N+1 문제
 
 
