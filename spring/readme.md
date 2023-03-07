@@ -331,25 +331,6 @@ afterCompletion
 
 ### 스프링 MVC에서 많은 요청이 발생할 때 생기는 상황
 
-### Spring JDBC를 통한 데이터 접근
-
-### 톰캣 내부 구조
-
-### 톰캣 기본 사이즈, 최대 사이즈
-
-- Max Thread Size : 200
-- Min Thread Size : 10
-
-### N+1 문제
-
-### 스프링 MVC에서 많은 요청이 발생할 때 생기는 상황 (다중 접속 처리)
-
-**다중 접속 서버와 I/O Multiplexing**
-
-
-
-
-
 스프링부트에 내장되어있는 **서블릿 컨테이너인 톰캣**에서 다중요청을 처리한다.
 
 **톰캣과 쓰레드풀**
@@ -378,150 +359,32 @@ afterCompletion
 - Max-Thread : 200
 - Idle-Thread : 10
 
-위의 내용에 따르면 Max-Thread 개수를 채웠고 작업 큐도 가득찼다면 그 다음의 요청들은 Connection-Refused되야 한다. 하지만 실제 테스트 시 Connection-Refused는 발생하지 않는다.
+### Spring JDBC를 통한 데이터 접근
 
-이유는 Java BIO가 아닌 JAVA NIO를 사용하기 때문이다
+### 톰캣 내부 구조
+- 자바 기반의 WAS로 서블릿 컨테이너라고도 불린다. 톰캣 내부에서 스프링 애플리케이션이 작동한다. 
+- 톰캣에서 소켓을 통해 커넥션을 획득한 뒤, 요청을 디스패처 서블릿으로 전달한다.
 
-**전통적인 JAVA IO vs JAVA NIO**
+> 톰캣에서 가장 중요한 내부 구성 요소 중 하나인 Connector에 대해서 알아보고자 한다.
 
-BIO의 경우, 하나의 요청에 하나의 쓰레드가 할당되고, 응답이 끝날때까지 해당 쓰레드가 계속 할당되어 있다. 이 방법은 요청 중간에 IO라도 발생하면 Thread는 일하지 않는 idle 타임을 길게 가져가야 한다는 것이다.
-또한 쓰레드의 개수 만큼만 동시 요청을 받을 수 있다.
+![스크린샷 2023-03-01 오후 2.37.57.png](/image/NIO_Connector.png)
 
-**JAVA NIO**
+**Acceptor**
 
-JAVA NIO는 Selector를 이용해서 여러 소켓 채널을 관리한다.
-- Selector에 소켓 채널들 등록
-- 채널에서 이벤트가 발생할때까지 selector가 대기
-- 채널에 이벤트가 발생하면 그때 유휴 쓰레드를 할당
+클라이언트로부터 소켓 연결 신청이 들어오면 accept 하고, 데이터를 주고받을 수 있는 소켓을 반환한다.
 
-**Tomcat에서 Java NIO가 사용되는 곳**
+![스크린샷 2023-03-01 오후 2.37.57.png](/image/poller.png)
 
-NIO Connector
+Acceptor는 Poller라는 특별한 쓰레드로 위의 소켓(채널이라고도 한다)을 전달한다. Poller라는 쓰레드는 java NIO의 멀티플렉싱 기술을 사용해서 하나의 쓰레드로 여러 채널을 보유하고 있을 수 있다.
 
-- Acceptor가 serverSocketChannel.accpet()를 통해 socketChannel 얻어냄
-- socketChannel은 톰캣 NioChannel로 변환되고 PollerEvent로 한번 더 래핑
-- PollerEvent Queue로 들어감
-
-**Selector는 Poller라는 별도의 쓰레드가 관리**
-
-NIO 방식의 장점 :
-- 하나의 쓰레드가 하나의 요청에 1대1로 매칭되지 않기 때문에 쓰레드 개수에 비해 많은 커넥션을 처리할 수 있고 idle 타임을 줄일 수 있다.
-- 작업 큐 크기와 상관 없이 많은 요청들을 connection-refused 시키지 않고 처리할 수 있다.
-- Max-thread까지 쓰레드 늘려서 작업 가능
-
-### SpringMVC vs Spring Webflux
-
-**spring MVC**
-- 사용자의 요청마다 스레드를 계속 생성해야 한다. 이때 쓰레드풀을 사용해서 이미 일정량을 확보해둔다.
-- 많은 사용자가 동시요청을 보내면 쓰레드풀 고갈 현상이 발생한다. (동시에 많은 요청이 올때랑 이어지는 듯) 처리안된 요청들은 계속 큐잉됨
-- 시스템 트래픽에 맞게 쓰레드풀 크기를 잘 설정해야 한다.
-
-> 기존의 MVC 방식은 동시 트래픽 대량으로 처리하는데 취약하다. 따라서 webflux가 각광받고 있다.
+이때 들고 있는 소켓에 데이터가 들어왔다는 이벤트가 발생하면 그때 쓰레드 풀의 워커 쓰레드로 요청을 할당해준다. 해당 쓰레드는 디스패처 서블릿으로 요청을 넘기고, 응답을 반환받은 뒤 쓰레드 풀로 돌아간다.
 
 
-**spring MVC**
-- 동기적인 방식
-- blocking 방식으로 구현
+### 톰캣 기본 사이즈, 최대 사이즈
 
-**spring webflux**
-- 비동기적인 방식
-- 논블록킹 방식으로 구현
-### Mono, Flux
+- Max Thread Size : 200
+- Min Thread Size : 10
 
-Spring WebFlux는 Spring 5에 새로 추가된 모듈이다.
-
-Non-blocking에 reactive stream을 지원하는 특징을 가지고 있다.
-
-reactive streams -> non-blocking에 back pressure를 사용한 비동기 데이터 처리 표준
-
-Flux와 Mono는 Reactor 라이브러리의 주요 객체이다.
-
-Flux와 Mono의 차이점 : 발행하는 데이터 개수
-
-- Mono는 0 ~ 1개의 데이터를 전달한다
--
+### N+1 문제
 
 
-### Sync vs Async, Non-blocking vs Blocking
-
-- 동기와 비동기 : 프로세스의 수행 순서 보장에 대한 메커니즘
-- 블록킹과 논블록킹 : 프로세스의 유휴 상태에 대한 개념
-
-동기의 의미 : 정확히 같은 시간에 발생, 존재하는 것, 동시에 똑같이 진행되는 느낌 , 현재 작업의 응답과 다음 작업의 요청
-
-즉, 작업이 어떠한 순서를 가지고 진행된다
-
-### Blocking
-
-```javascript
-function employee () {
-  for (let i = 1; i < 101; i++) {
-    console.log(`${i}번 수행`);
-  }
-}
-
-function boss () {
-  console.log('사장: 출근');
-  employee();
-  console.log('사장: 퇴근');
-}
-
-boss();
-```
-
-### Non-Blocking
-
-```javascript
-function* employee () {
-  for (let i = 1; i < 101; i++) {
-    console.log(`${i}번 수행`);
-    yield;
-  }
-  return;
-}
-
-function boss () {
-  console.log('사장: 출근');
-
-  const generator = employee();
-  let result = {};
-
-  while (!result.done) {
-    result = generator.next();
-    console.log(`사장: 유튜브 시청...`);
-  }
-
-  console.log('사장: 퇴근');
-}
-
-boss();
-```
-
-### Async
-
-동기 방식에서 상위 프로세스는 작업을 시킨 하위 프로세스의 작업 상황을 계속 신경쓰고 있어야 한다. 하위 프로세스의 작업이 끝나야 그 다음 상위 프로세스의 작업을 실행할 수 있다.
-
-```javascript
-
-function employee (maxDollCount = 1, callback) {
-  let dollCount = 0;
-  const interval = setInterval(() => {
-    if (dollCount > maxDollCount) {
-      callback();
-      clearInterval(interval);
-    }
-    dollCount++;
-    console.log(`${dollCount}번 수행`);
-  }, 10);
-}
-
-function boss () {
-  console.log('사장: 출근');
-  employee(100, () => console.log('직원: 눈알 결산 보고'));
-  console.log('사장: 퇴근');
-}
-
-boss();
-```
-
-비동기 방식이기 때문에 상위 프로세스는 하위 프로세스의 작업 완료 여부를 따로 신경쓰지 않는다. 또한 논블로킹 방식이기 때문에 상위 프로세스는 하위 프로세스에게 일을 맡기고 자신의 작업을 계속 수행할 수도 있다.
