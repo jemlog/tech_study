@@ -4,6 +4,8 @@
 
 자바 플랫폼을 위한 오픈소스 애플리케이션 프레임워크로서 엔터프라이즈급 애플리케이션을 개발하기 위한 모든 기능을 종합적으로 제공하는 경량화된 솔루션이다.
 
+
+
 ## Spring, SpringBoot 차이
 
 **빌드 후 배포 방식**
@@ -87,8 +89,6 @@ public class JavaConfig {
 프로그램의 제어 흐름을 직접 제어하는 것이 아니라 외부에서 관리하는 것을 제어의 역전(IoC)이라 한다. 우리가 흔히 사용하는 스프링 컨테이너가 대표적인 IOC 컨테이너라고 할 수 있다.
 
 ```java
-import java.util.List;
-
 public class StockService() {
     
     // 클라이언트 객체가 스스로 필요한 저장소 객체를 생성하고 실행했다.
@@ -107,10 +107,10 @@ public class StockService() {
 
 ```java
 @Service
-@RequiredArgumentConstructor
 public class StockService(){
     
     // 클라이언트 객체가 직접 필요한 객체를 생성하지 않음
+    @Autowired
     private final StockRepository stockRepository;
     ... 
     
@@ -194,7 +194,7 @@ POJO를 실천한 경우
 
 Data Access Object의 약자로 DB의 데이터에 접근하기 위한 객체를 말한다.
 
-repository와 dao의 차이
+**repository와 dao의 차이**
 
 repository는 엔티티 객체를 보관하고 관리하는 저장소, dao는 데이터에 접근하도록 db 접근 관련 로직을 모아둔 객체
 
@@ -202,6 +202,9 @@ repository는 엔티티 객체를 보관하고 관리하는 저장소, dao는 �
 
 - DAO와 Repository는 비슷한 역할을 함
 - Repository는 엔티티 객체를 다루고 관리하는 저장소, DAO는 SQL 기반 쿼리 실행 메서드를 모아놓은 객체
+- 보통 복잡한 조회 쿼리를 구현할때 DAO라는 이름으로 클래스 이름을 짓는다.
+
+인프런에 있는 김영한님의 DAO와 Repository의 차이에 대한 답변 : https://www.inflearn.com/questions/111159/domain%EA%B3%BC-repository-%EC%A7%88%EB%AC%B8
 
 ### DTO
 
@@ -227,9 +230,9 @@ public class StockController
 }
 ```
 
-위의 코드를 보면 레포지토리 계층에서 조회한 Stock 엔티티 객체를 컨트롤러 계층에서 그대로 반환하는걸 알 수 있다. 이때 처음에는 문제없이 동작하다가 클라이언트와의 상의 없이 엔티티의 필드 명을 변경하거나 임의로 삭제하게 된다면 API 스펙과 틀어져서 장애가 발생할 확률이 있다.
+위의 코드를 보면 레포지토리 계층에서 조회한 Stock 엔티티 객체를 컨트롤러 계층에서 그대로 반환하는걸 알 수 있다. 이때 처음에는 문제없이 동작하다가 클라이언트와의 상의 없이 엔티티의 필드 명을 변경하거나 임의로 삭제하게 된다면 API 스펙과 틀어져서 장애가 발생할 확률이 있다. 또한 엔티티를 그대로 반환한다면 웹 계층 관련 어노테이션이나 로직들이 엔티티에 추가될 수 있으므로 계층 간 분리가 이뤄지지 않는다.
 
-즉, 컨트롤러 계층이 레포지토리 계층의 변경사항에 의존적이게 되는 것이다. 서로 다른 계층의 변화에 의존적이지 않게 하려면 각 계층 전용 입력,출력 DTO를 만드는게 좋다.
+따라서 서로 다른 계층의 변화에 의존적이지 않게 하려면 각 계층 전용 입력,출력 DTO를 만드는게 좋다.
 
 ## MVC 패턴
 
@@ -249,7 +252,30 @@ controller
 
 ## MVC vs Webflux
 
-webflux의 근간 : 이벤트 루프
+webflux
+- 비동기 논블록킹 리액티브 개발에 사용한다
+- 쓰레드 CPU와 Memory의 리소스를 낭비하지 않는 효율적인 웹서비스를 만들기 위해서이다.
+> 블로킹 I/O에서는 자주 I/O 작업에 의한 블로킹이 발생하고 쓰레드는 계속 context switching이 일어난다. 
+> 트래픽이 많은 고부하 서비스에서는 쓰레드 유휴 시간의 증가와 context switching으로 인한 리소스 낭비가 크게 다가온다. webflux의 논블로킹 방식은 이런 현상을 막아준다.
+- reactvie-stack web framework이며 non-blocking에 reactive stream을 지원한다.
+
+
+
+장점 : netty를 지원하고 non-blocking 메세지 처리를 한다.
+단점 : 오류처리가 복잡하다
+
+
+Spring Webflux에서 사용하는 reactive library가 Reactor이고, Reactor가 Reactive Streams의 구현체이다.
+
+Mono
+- 0 ~ 1개의 데이터를 전달한다
+- Reactive Streams의 Publisher 인터페이스를 구현하는 구현체이다. 
+
+Flux
+- 0 ~ N개의 데이터를 전달한다
+
+
+
 
 ## Filter와 Interceptor
 
@@ -311,6 +337,8 @@ afterCompletion
 
 ### 필터와 인터셉터 차이
 
+![스크린샷 2023-03-01 오후 2.37.57.png](/image/filter.png)
+
 필터의 사용처
 - 공통된 보안 인증/인가 작업
 - 모든 요청에 대한 로깅 및 감사
@@ -351,14 +379,13 @@ afterCompletion
 
 ### 톰캣에서 제공하는 기본 설정값
 - Max-Thread : 200
-- Idle-Thread : 25
-- Max-connections : 8192 # 동시에 들어올 수 있는 커넥션 수 NIO에서 사용
+- Idle-Thread : 10
+- Max-connections : 8192 # 동시에 들어올 수 있는 커넥션 수
 - Accept-Count : 100 # 작업 큐 사이즈
 - Connection-Timeout : 20000 # 타임아웃 20초
-
-**스프링부트에서 제공하는 기본 설정값**
-- Max-Thread : 200
-- Idle-Thread : 10
+  
+- 쓰레드 기본값을 너무 많이 설정했을때 : 놀고 있는 스레드가 많아져 메모리,cpu 자원 비효율 증대 (CPU Core를 점유하기 위해서 쓰레드 경합이 강해짐) 
+- 쓰레드 기본값을 너무 적게 설정했을때 : 동시 처리 요청수가 줄어든다. 평균응답시간, TPS 감소
 
 ## Spring JDBC를 통한 데이터 접근
 
@@ -410,4 +437,31 @@ Acceptor는 Poller라는 특별한 쓰레드로 위의 소켓(채널이라고도
 
 ## N+1 문제
 
+JPA에서 하나의 객체를 조회했을때, 1대다의 연관관계로 맺어진 객체를 가져오기 위해 N번의 쿼리가 더 발생하는 상황을 말한다.
 
+### 즉시 로딩(Eager Loading)에서의 N+1
+
+즉시 로딩을 하면 연관된 데이터가 한꺼번에 다 가지고 와지는 것을 생각한다. 하지만 실제 SQL은 하나의 테이블을 대상으로 쿼리가 발생하고, 실제 SQL 쿼리 후, 객체를 만들때 연관된 객체를 가지고 오기 위해서 총 N번의 쿼리를 더 발생시킨다.
+
+### 지연 로딩(Lazy Loading)에서의 N+1
+
+지연 로딩을 하면 조회하고자 하는 객체만 조회가 되고 연관관계가 맺어진 객체들은 프록시로 초기화 된다. 만약 사용자가 프록시 내부의 필드값이나 메서드를 참조하면, 그때 프록시에서 실제 객체를 호출한다.
+
+```java
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Test {
+
+    public void test() {
+        List<User> userList = userRepostory.findAll();
+
+        // User와 N:1 연관관계가 맺어진 Team를 지연로딩 했을때, team의 name 필드를 조회할 경우, user의 개수만큼 쿼리가 발생한다
+        List<UserResponseDto> result = userList.stream().map(user -> new UserResponseDto(user.getTeam().getName())).collect(Collectors.toList());
+    }
+}
+```
+
+**해결법**
+
+- Fetch Join을 사용해서 User 정보와 Team 정보를 join해서 한번에 가져온다.
