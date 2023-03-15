@@ -634,6 +634,9 @@ public void test(){
 - heap 영역은 stack 영역과 다르게 무질서하게 메모리 공간 활용
 - 객체의 메모리 할당의 경우 stack 영역에는 실제 주소값만 저장
 
+![스크린샷 2023-03-15 오후 10 38 34](https://user-images.githubusercontent.com/82302520/225325761-ab8c45e8-99fb-40c2-81f4-79d3cfec2db7.png)
+
+
 pass by value와 pass by reference는 함수의 매개변수로 넘길때의 방식에 대한 것이다.
 
 pass by value
