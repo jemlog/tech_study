@@ -622,9 +622,9 @@ Stock<? extends StockClass>
 ```java
 public void test(){
     
-    int x = 3;
-    float y = 10.102f;
-    String s = "hello";
+    int x = 3; // x에 실제 값 저장
+    float y = 10.102f;  // y에 실제 값 저장
+    String s = "hello"; // s에는 heap의 주소값 저장
         }
 ```
 
