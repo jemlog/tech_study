@@ -748,32 +748,6 @@ public void minusStock(){
 
 - equals는 메서드로써 비교 대상의 실제 값을 비교한다.
 
-> equals도 내부적으로는 == 비교를 사용한다
-> String에서는 == 비교 후, 주소값이 다르다면 실제 문자열 값으로도 비교를 하는 로직이 포함되어 있다
-
-```java
- public boolean equals(Object anObject) {
-        if (this == anObject) {
-            return true;
-        }
-        if (anObject instanceof String) {
-            String anotherString = (String)anObject;
-            int n = value.length;
-            if (n == anotherString.value.length) {
-                char v1[] = value;
-                char v2[] = anotherString.value;
-                int i = 0;
-                while (n-- != 0) {
-                    if (v1[i] != v2[i])
-                        return false;
-                    i++;
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-```
 ## 리플렉션
 구체적인 클래스 타입을 알지 못해도 그 클래스의 메소드, 타입, 변수들에 접근할 수 있도록 해주는 자바 API
 
