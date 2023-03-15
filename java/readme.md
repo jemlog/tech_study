@@ -800,6 +800,8 @@ public static void main(String[] args) throws NoSuchMethodException, Instantiati
 ```
 
 Enum의 경우에도 리플렉션을 통해 생성자를 호출하도록 시도해볼 수 있다. 하지만 Enum은 자체적으로 리플렉션을 통한 생성자 호출이 불가능하도록 설계되어있다.
+
+
 <img width="635" alt="스크린샷 2023-03-15 오후 8 34 54" src="https://user-images.githubusercontent.com/82302520/225315198-52d7d9bd-dde2-4776-a5b7-bfef77ca9ccc.png">
 
 ## 스트림
