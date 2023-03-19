@@ -31,14 +31,16 @@ young 영역에서 객체를 정리하는걸 minor GC라고 한다.
 
 young 영역에서 살아남은 객체들이 이 영역으로 이동한다. young 영역보다 크게 할당되고 GC도 적게 발생한다. 여기서 GC가 발생하면 Major GC 혹은 Full GC라고 한다.
 
-![스크린샷 2023-03-13 오전 1.30.07.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-13%20%EC%98%A4%EC%A0%84%201.30.07.png)
+![스크린샷 2023-03-13 오전 1 31 23](https://user-images.githubusercontent.com/82302520/225314341-1a63ab83-7f88-4556-97db-f14c639805ce.png)
+
 
 Old 영역에 있는 객체가 young 영역에 있는 객체를 참조하는 경우
 - Old 영역에는 512바이트 짜리 카드 테이블이 존재 -> Old 영역에 있는 객체가 Young 영역의 객체를 참조할때마다 참조 정보가 카드테이블에 기록된다. Young 영역 GC 할때는 카드테이블 뒤져서 GC 대상 식별함
 - 카드 테이블 관리는 write barrier 사용한다. Minor GC를 빠르게 해준다.
 
-![스크린샷 2023-03-15 오후 8.56.39.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-15%20%EC%98%A4%ED%9B%84%208.56.39.png)
-Young 영역은 eden 영역과 두개의 survivor 영역으로 구분된다
+![스크린샷 2023-03-13 오전 1 36 53](https://user-images.githubusercontent.com/82302520/225314648-1d07c57a-0db0-4a3d-b725-54653ba9e330.png)
+
+
 
 1. 새로 생성한 객체들 eden 영역 배치
 2. eden 영역에서 살아남았으면 survivor중 하나로 감
@@ -61,7 +63,7 @@ Serial GC : GC 쓰레드가 하나임
 parallel GC : GC 처리 쓰레드가 여러개임
 
 ### CMS GC 
-![스크린샷 2023-03-15 오후 9.07.34.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-15%20%EC%98%A4%ED%9B%84%209.07.34.png)
+![스크린샷 2023-03-13 오전 1 47 56](https://user-images.githubusercontent.com/82302520/225314680-6c95c657-3d42-4686-a33e-db2141566a0c.png)
 
 initial mark: 
 - 클리스 로더에서 가장 가까운 객체 중 살아있는것만 다 체크
@@ -422,7 +424,8 @@ ThreadPool에서 꺼내서 사용 후 반납 전에 clear 해주지 않으면, �
 해결방법 : ExecuterService를 사용해서 hook을 통해 threadpool 반납 전 꼭 clear를 실행하게 해줄 수 있다.
 
 ### 쓰레드 풀
-![스크린샷 2023-03-15 오후 9.29.39.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-15%20%EC%98%A4%ED%9B%84%209.29.39.png)
+<img width="715" alt="스크린샷 2023-03-15 오후 9 29 39" src="https://user-images.githubusercontent.com/82302520/225314851-1fd33e48-2ee2-46e4-8066-2a53530398e2.png">
+
 
 
 ```java
@@ -479,7 +482,8 @@ public class Test{
 
 멀티 쓰레드 환경에서는 여러 CPU Core가 사용된다. 이때 CPU Core들은 각각 캐시를 가지고 있다. 
 
-![스크린샷 2023-03-15 오후 9.36.01.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-15%20%EC%98%A4%ED%9B%84%209.36.01.png)
+<img width="470" alt="스크린샷 2023-03-15 오후 9 36 01" src="https://user-images.githubusercontent.com/82302520/225314917-5779c848-0b04-472f-b8fb-52f18d41b1b0.png">
+
 
 쓰레드들은 값을 조회할때 바로 RAM에서 가져오는 것이 아니라 자신의 L1 Cache에 저장된 값을 사용한다. 따라서 자신이 조회한 값이 최신의 값이 아닐 가능성이 있다.
 
@@ -507,15 +511,16 @@ public class Test{
 
 Collection 인터페이스(java.util.Collection) 와 Map 인터페이스(java.util.Map) 자바 컬렉션 클래스의 주요 "루트"인터페이스이다
 
-![collection.png](..%2F..%2F..%2FDesktop%2Fcollection.png)
+<img width="647" alt="collection" src="https://user-images.githubusercontent.com/82302520/225314967-c1b13747-9855-4045-873c-cee18f00d9db.png">
+
 
 ### 컬렉션 사용 이유
 
 1. 일괄된 API : Collection의 일관된 API를 사용하여 Collection 밑에 있는 모든 클래스(ArrayList, Vector, LinkedList 등) Collection에서 상속받아 통일된 메서드를 사용하게 된다.
 
-2. 프로그래밍 노력 감소 : 객체 지향 프로그래밍의 추상화의 기본 개념이 성공적으로 구현되어있다.
+2. 프로그래밍 노력 감소 : 객체 지향 프로그래밍의 추상화의 기본 개념이 성공적으로 구현되어있다,
 
-3. 프로그램 속도 및 품질 향상 : 유용한 데이터 구조 및 알고리즘은 성능을 향상시킬 수 있습니다 Collection을 사용하여 최상의 구현을 생각할 필요없이 간단하게 Collection API를 사용하여 구현을 하면 된다.
+3. 프로그램 속도 및 품질 향상 : 유용한 데이터 구조 및 알고리즘은 성능을 향상시킬 수 있다. Collection을 사용하여 최상의 구현을 생각할 필요없이 간단하게 Collection API를 사용하여 구현을 하면 된다.
 
 ### 컬렉션에 원시 타입이 사용되지 못하는 이유
 
@@ -532,7 +537,9 @@ Collection 인터페이스(java.util.Collection) 와 Map 인터페이스(java.ut
 - 실행시(런타임시)특정 기능을 실행하도록 정보를 제공
 - 불필요한 코드의 중복을 줄여준다
 
-![annotation.png](..%2Fimage%2Fannotation.png)
+<img width="655" alt="annotation" src="https://user-images.githubusercontent.com/82302520/225315346-30c2f267-a916-4f0b-97a3-1f0f13e945ed.png">
+
+
 
 **@Retention**
 
@@ -570,7 +577,7 @@ Collection 인터페이스(java.util.Collection) 와 Map 인터페이스(java.ut
 
 애노테이션 프로세서는 컴파일 타임에 애노테이션을 스캔하고 처리하기 위해 javac에서 확장해서 사용하는 도구.
 
-보통 애노테이션 프로세서는 Java코드 혹은 컴파일된 Java Bytecode를 입력으로 받아서, 파일을(대개는 .java 파일) 출력으로 생성합니다. 
+보통 애노테이션 프로세서는 Java코드 혹은 컴파일된 Java Bytecode를 입력으로 받아서, 파일을(대개는 .java 파일) 출력으로 생성한다.
 메서드를 추가하기 위해서 이미 존재하는 자바 클래스파일을 조작할 필요는 없음. 이 생성된 java 파일은 다른 java 파일과는 동일하게 javac로 컴파일 됨.
 
 ## Generic , c++ 템플릿과의 차이
@@ -615,9 +622,9 @@ Stock<? extends StockClass>
 ```java
 public void test(){
     
-    int x = 3;
-    float y = 10.102f;
-    String s = "hello";
+    int x = 3; // x에 실제 값 저장
+    float y = 10.102f;  // y에 실제 값 저장
+    String s = "hello"; // s에는 heap의 주소값 저장
         }
 ```
 
@@ -626,7 +633,11 @@ public void test(){
 
 - heap 영역은 stack 영역과 다르게 무질서하게 메모리 공간 활용
 - 객체의 메모리 할당의 경우 stack 영역에는 실제 주소값만 저장
-- 배열의 경우 각 인덱스마다 참조값이 할당되고 이를 통해 접근 즉, 배열 내부에 실제값이 있는게 아니라, 그 실제 값의 참조 주소들이 들어있다
+
+![스크린샷 2023-03-15 오후 10 38 34](https://user-images.githubusercontent.com/82302520/225325761-ab8c45e8-99fb-40c2-81f4-79d3cfec2db7.png)
+
+
+pass by value와 pass by reference는 함수의 매개변수로 넘길때의 방식에 대한 것이다.
 
 pass by value
 - 복사된 데이터를 전달함, 값을 수정하여도 원본 데이터에 영향 주지 않는다
@@ -638,12 +649,14 @@ pass by reference
 
 pass by reference가 아닌 이유
 
-call by reference의 경우, 만약 메인 함수의 변수 7을 함수 매개변수로 전달할때, 주소 값을 전달하여 실제 값에 대한 Alias를 구성함으로써, 값을 수정하면 원본의 데이터가 수정되도록 하는 방식
-
-즉, 내부 값을 바꾸면 외부도 같이 바뀜
-
 자바의 경우 객체의 경우, 변수에는 주소값이 들어간다. 하지만 매개변수로 옮겨질때는 그 주소값 변수 자체가 복사가 된다. 그렇다면 그 변수를 통해서 같은 객체에 접근 가능하고, 그 객체 내부의 값을 변경할 수는 있지만, 객체 자체를 다른 객체로 바뀌끼울수는 없다. 
 바꿔봤자 복사본이기 때문!
+
+![스크린샷 2023-03-15 오후 10 18 46](https://user-images.githubusercontent.com/82302520/225320660-3d1839be-153b-42c5-a0b9-15acd74cda09.png)
+
+
+
+
 
 ## String, StringBuffer, StringBuilder
 
@@ -678,7 +691,9 @@ api 사용해서 동일 객체 내의 문자열 변경 가능함
 - StringBuilder : 문자열 연산 많고 단일 쓰레드일때
 
 ## checked exception, unchecked  exception (ok)
-![스크린샷 2023-03-15 오후 8.41.06.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-15%20%EC%98%A4%ED%9B%84%208.41.06.png)
+
+<img width="805" alt="스크린샷 2023-03-15 오후 8 41 06" src="https://user-images.githubusercontent.com/82302520/225315111-5f26bc00-8600-43b8-bdf7-9cb89685711c.png">
+
 
 **예외를 처리하는 방법**
 - try-catch를 통해서 처리 후 정상 로직으로 변환
@@ -739,32 +754,6 @@ public void minusStock(){
 
 - equals는 메서드로써 비교 대상의 실제 값을 비교한다.
 
-> equals도 내부적으로는 == 비교를 사용한다
-> String에서는 == 비교 후, 주소값이 다르다면 실제 문자열 값으로도 비교를 하는 로직이 포함되어 있다
-
-```java
- public boolean equals(Object anObject) {
-        if (this == anObject) {
-            return true;
-        }
-        if (anObject instanceof String) {
-            String anotherString = (String)anObject;
-            int n = value.length;
-            if (n == anotherString.value.length) {
-                char v1[] = value;
-                char v2[] = anotherString.value;
-                int i = 0;
-                while (n-- != 0) {
-                    if (v1[i] != v2[i])
-                        return false;
-                    i++;
-                }
-                return true;
-            }
-        }
-        return false;
-    }
-```
 ## 리플렉션
 구체적인 클래스 타입을 알지 못해도 그 클래스의 메소드, 타입, 변수들에 접근할 수 있도록 해주는 자바 API
 
@@ -816,7 +805,9 @@ public static void main(String[] args) throws NoSuchMethodException, Instantiati
 
 Enum의 경우에도 리플렉션을 통해 생성자를 호출하도록 시도해볼 수 있다. 하지만 Enum은 자체적으로 리플렉션을 통한 생성자 호출이 불가능하도록 설계되어있다.
 
-![스크린샷 2023-03-15 오후 8.34.54.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-15%20%EC%98%A4%ED%9B%84%208.34.54.png)
+
+<img width="635" alt="스크린샷 2023-03-15 오후 8 34 54" src="https://user-images.githubusercontent.com/82302520/225315198-52d7d9bd-dde2-4776-a5b7-bfef77ca9ccc.png">
+
 ## 스트림
 
 ### Stream API의 특징
@@ -873,7 +864,7 @@ nameStream.forEach(System.out::println);
 - 람다를 사용하면서 만든 무명함수는 재사용이 불가능하다.
 - 디버깅이 어렵다.
 - 람다를 남발하면 비슷한 함수가 중복 생성되어 코드가 지저분해질 수 있다.
-- 재귀로 만들경우에 부적합하다.
+
 
 ### 함수형 인터페이스(Functional Interface)
 이제 우리는 람다식으로 순수 함수를 선언할 수 있게 되었다. 하지만 Java는 기본적으로 객체지향 언어이기 때문에 순수 함수와 일반 함수를 다르게 취급하고 있으며, Java에서는 이를 구분하기 위해 함수형 인터페이스가 등장하게 되었다.
