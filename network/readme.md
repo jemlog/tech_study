@@ -61,7 +61,7 @@ TCP의 연결 지향적 특징으로 인해 연결 생성과 연결 종료 시�
 
 3-way handshaking은 연결을 생성할때 필요한 과정이다.
 
-![3-way handshaking.png](..%2F..%2Fimage%2Fnetwork%2F3-way%20handshaking.png)
+<img width="400" alt="3-way handshaking" src="https://user-images.githubusercontent.com/82302520/226425174-6868cb71-ff95-43fa-82fe-6b9db920c32c.png">
 
 1. 요청자가 SYN_SENT 단계에서 랜덤으로 생성한 SYN를 보낸다
 2. 수신자는 SYN_RECV 단계에서 요청자의 SYN에 1을 더한 ACK와 랜덤한 SYN를 보낸다
@@ -73,7 +73,8 @@ TCP의 연결 지향적 특징으로 인해 연결 생성과 연결 종료 시�
 4-way handshaking은 연결을 종료할때 필요한 과정이다. 연결을 종료하는 핸드쉐이킹이 따로 필요한 이유는 강제로 연결을 종료할 시,
 연결이 끊겼다는걸 **상대방이 인지하지 못하고**, 미처 **전송이 완료되지 못한 데이터가 있을 수도 있기 때문이다**.
 
-![4-way-handshaking.png](..%2F..%2Fimage%2Fnetwork%2F4-way-handshaking.png)
+<img width="400" alt="4-way-handshaking" src="https://user-images.githubusercontent.com/82302520/226425218-21cba66a-0e28-47f5-be22-743245fd0646.png">
+
 
 1. 요청자가 FIN_WAIT_1 단계에서 FIN과 ACK를 같이 보낸다.
 2. 수신자는 CLOSE_WAIT 단계에서 요청자에게 ACK를 보내고 남은 데이터를 보내기 시작한다.
@@ -134,7 +135,64 @@ Go Back N과 반대로 유실된 데이터만 다시 보내는 방식이다. 선
 
 ### 혼잡 제어
 
+네트워크 환경에서 통신 오류가 발생할 경우 기본적인 복구 방식은 재시도이다. 하지만 혼잡상황에서 재시도가 많아지면 혼잡도를 더욱 증가시킬 수 있다. 따라서 혼잡상황에서 송신측은 데이터의 전송량을 유동적으로 조절할 수 있어야 한다.
 
+송신 측은 자신의 최종 윈도우 크기를 정할 때 수신 측이 보내준 윈도우 크기인 수신자 윈도우(RWND), 그리고 자신이 네트워크의 상황을 고려해서 정한 윈도우 크기인 혼잡 윈도우(CWND) 중에서 더 작은 값을 사용한다.
+
+### 혼잡 윈도우 크기 초기화하기
+
+- MSS : 한 세그먼트에 최대로 보낼 수 있는 데이터의 양을 나타내는 값
+- MTU(Maximum Transmission Unit) : 한번 통신 때 보낼 수 있는 최대 단위
+
+MSS = MTU - (IP헤더길이 + IP옵션길이) - (TCP헤더길이 + TCP옵션길이)
+
+- TCP 환경에서 기본적인 MTU 크기 : 1500 bytes
+- MSS = 1500 - 40 = 1460 Bytes
+- 초기 혼잡 위도우 크기 == 1MSS
+
+
+### 가장 기본적인 혼잡 제어 방법
+- AIMD
+- Slow Start
+
+**AIMD (Additive Increase / Multicative Decrease)**
+
+네트워크가 문제가 없을때는 혼잡 윈도우의 크기를 1씩 증가시킨다. 하지만 중간에 데이터가 유실되거나 응답이 오지 않는 등의 혼잡 상태 감지되면 혼잡 윈도우 크기를 반으로 줄인다.
+
+> 이 방식은 네트워크에 늦게 참여하는 노드에게 유리
+
+- 이미 대역폭을 많이 사용하고 있는 노드는 혼잡 제어를 통해 윈도우 크기를 반으로 줄일 확률이 높음
+- 새로 들어온 노드는 남은 대역폭을 사용해서 본인은 혼잡 윈도우 크기 줄일 수 있다.
+
+AIMD의 문제점 : 현대의 네트워크는 대역폭이 넉넉하다. 하지만 이 방식은 윈도우 크기를 너무 작게 키우기 때문에 네트워크의 대역폭을 제대로 사용하지 못한다.
+
+**Slow Start**
+
+네트워크 대역폭을 제대로 활용하지 못하는 AIMD 방식을 대신해서 윈도우 크기 증가 시 지수적으로 증가시키는 Slow Start 방식이 있다.
+
+- 네트워크 여유로울 시 : 지수적으로 윈도우 크기를 증가
+- 혼잡 감지 시 : 윈도우 크기를 1로 줄여버린다
+
+최근의 TCP 에서 사용하는 Tahoe나 Reno가 AIMD와 Slow Start를 적절히 섞어서 사용한다.
+
+
+### 혼잡 제어 정책 종류
+
+**Tahoe**
+
+<img width="400" alt="스크린샷 2023-02-23 오후 10 49 31" src="https://user-images.githubusercontent.com/82302520/226426571-e6f83cb1-a2d3-462f-ab5e-af8f8252e4b3.png">
+
+- 3 ACK Duplicated나 Timeout 발생하면 1로 줄여버린다.
+- 혼잡 상황에서의 문제가 발생했을때의 혼잡 윈도우 크기의 반을 딱 ssthreshold로 다시 잡는다
+
+단점 : 초반 slow start 구간에 키우는데 너무 오래 걸림, 윈도우 크기 1부터 다시 키워야함
+
+**RENO**
+
+<img width="400" alt="스크린샷 2023-02-23 오후 10 49 40" src="https://user-images.githubusercontent.com/82302520/226426601-e503de0b-adb5-42f7-8072-551dbd890787.png">
+
+- 3 ACK Duplicated는 AIMD로 줄이고 ssthreshold도 거기에 맞게 줄인다.
+- Timeout은 1로 줄이되 ssthreshold를 반으로 줄이지 않는다.
 
 ## 데이터 캡슐화
 
@@ -238,7 +296,8 @@ SSL 계층은 SSL 핸드셰이크 프로토콜과 SSL 레코드 프로토콜로 
 
 TCP 3-way Handshake 과정이 끝난 후, SSL Handshake 과정이 발생한다.
 
-![스크린샷 2023-03-20 오후 7.30.16.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-20%20%EC%98%A4%ED%9B%84%207.30.16.png)
+<img width="400" alt="스크린샷 2023-03-20 오후 7 30 16" src="https://user-images.githubusercontent.com/82302520/226424665-e563dece-d45c-4272-b5cc-7bfbc433aad8.png">
+
 
 1. ClientHello : 클라이언트 측에서 처리 가능한 암호화 알고리즘을 전달해준다.
 2. ServerHello : 서버 측에서 한가지 암호화 알고리즘을 선택한다.
@@ -392,8 +451,9 @@ DNS 라운드 로빈은 다수의 웹 서버를 운영하는 대형 웹 사이�
 
 
 ### Route 53을 통한 DNS 로드밸런싱
+<img width="400" alt="스크린샷 2023-03-20 오후 8 52 51" src="https://user-images.githubusercontent.com/82302520/226424467-4f2a1e0f-dd5b-460a-b9a2-494bf9b5d34d.png">
 
-![스크린샷 2023-03-20 오후 8.52.51.png](..%2F..%2F..%2FDesktop%2F%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202023-03-20%20%EC%98%A4%ED%9B%84%208.52.51.png)
+
 
 기존의 DNS 로드밸런싱은 헬스 체크를 하지 못한다는 단점이 있다. 하지만 AWS의 Route 53은 헬스 체크 기능을 제공한다.
 
